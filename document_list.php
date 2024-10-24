@@ -5,71 +5,128 @@ if ($argc != 4) {
     exit(1);
 }
 
+$dokumentumok = loadDocumentsFromCsv('document_list.csv');
+$dokumentumok = filterDocuments($dokumentumok, $argv[1], $argv[2], $argv[3]);
 
-$dokumentumok = array();
-$d = array();
+printDocumentHeader();
+printDocuments($dokumentumok, $argv[3]);
 
-$row = 1;
-if (($handle = fopen('document_list.csv', 'r')) !== false) {
-    while (($data = fgetcsv($handle, null, ';')) !== false) {
-        if ($row == 1) {
-            $d = $data;
-        } else {
-            $o = [];
-            for ($i = 0; $i < count($d); $i++) {
-                $value = json_decode($data[$i]);
-                if (json_last_error() == 0) {
-                    $o[$d[$i]] = $value;
-                } else {
-                    $o[$d[$i]] = $data[$i];
+/**
+ * Load documents from CSV
+ *
+ * @param string $filename
+ * @return array List of documents
+ */
+function loadDocumentsFromCsv($filename): array
+{
+    $documents = [];
+    $header = [];
 
-                }
+    if (($handle = fopen($filename, 'r')) !== false) {
+        $row = 0;
+
+        while (($data = fgetcsv($handle, null, ';')) !== false) {
+            if ($row === 0) {
+                $header = $data;
+            } else {
+                $documents[] = parseDocumentRow($header, $data);
             }
-            $dokumentumok[] = $o;
+
+            $row++;
         }
-        $row++;
+        fclose($handle);
     }
-    fclose($handle);
+
+    return $documents;
 }
 
-function is_empty($obj) {
-    return empty((array) $obj);
+/**
+ * Parse document row
+ *
+ * @param array $header
+ * @param array $data
+ * @return void
+ */
+function parseDocumentRow($header, $data)
+{
+    $document = [];
+
+    foreach ($header as $index => $key) {
+        $value = json_decode($data[$index], true);
+        $document[$key] = (json_last_error() === JSON_ERROR_NONE) ? $value : $data[$index];
+    }
+
+    return $document;
 }
 
-$dokumentumok = array_filter($dokumentumok, function ($item) {
-    global $argv;
+/**
+ * Filter documents by type and partnerId
+ *
+ * @param array $documents
+ * @param string $type
+ * @param string $partnerId
+ * @return array Filtered documents
+ */
+function filterDocuments($documents, $type, $partnerId): array
+{
+    return array_filter($documents, function ($document) use ($type, $partnerId) {
+        $partner = (array)$document['partner'];
 
-    $p = (array)$item['partner'];
-    $partner = (!empty($p['id']) && $p['id'] == $argv[2]);
-    $type = $item['document_type'] == $argv[1];
-
-    return $partner && $type ;
-});
-
-$d2 = array('document_id', 'document_type','partner name', 'total');
-
-foreach ($d2 as $h) {
-    echo str_pad($h, 20);
+        return !empty($partner['id']) && $partner['id'] == $partnerId && $document['document_type'] == $type;
+    });
 }
-echo "\n";
-foreach ($d2 as $h) {
-    echo str_repeat('=', 20);
+
+/**
+ * Calculate total price of items
+ *
+ * @param array $items
+ * @return float
+ */
+function calculateTotal($items): float
+{
+    return array_reduce($items, function ($carry, $item) {
+        return $carry + ($item['unit_price'] * $item['quantity']);
+    }, 0);
 }
-echo "\n";
-foreach ($dokumentumok as $item) {
-    $total = 0;
-    $itemCounter = 0;
-    do {
-        $total += $item['items'][$itemCounter]->unit_price * $item['items'][$itemCounter]->quantity;
-        $itemCounter++;
-    } while($itemCounter < count($item['items']));
 
-    if ($total > $argv[3]) {
+/**
+ * Print document header, as document_id, document_type, partner name, total
+ *
+ * @return void
+ */
+function printDocumentHeader()
+{
+    $headers = ['document_id', 'document_type', 'partner name', 'total'];
 
-        echo str_pad($item['id'], 20);
-        echo str_pad($item['document_type'], 20);
-        echo str_pad($item['partner']->name, 20);
-        echo str_pad($total, 20);
-        echo "\n";
+    foreach ($headers as $header) {
+        echo str_pad($header, 20);
+    }
+    echo "\n";
+
+    foreach ($headers as $header) {
+        echo str_repeat('=', 20);
+    }
+    echo "\n";
+}
+
+/**
+ * Print documents with total price greater than minTotal
+ *
+ * @param $documents
+ * @param $minTotal
+ * @return void
+ */
+function printDocuments($documents, $minTotal)
+{
+    foreach ($documents as $document) {
+        $total = calculateTotal($document['items']);
+
+        if ($total > $minTotal) {
+            echo str_pad($document['id'], 20);
+            echo str_pad($document['document_type'], 20);
+            echo str_pad($document['partner']['name'], 20);
+            echo str_pad($total, 20);
+            echo "\n";
+        }
     }
 }
