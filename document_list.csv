@@ -1,0 +1,13 @@
+id;document_type;partner;items
+1;invoice;{"id":1, "name": "Kovács József"};[{"name":"alma","unit_price":5000, "quantity":5}]
+2;proforma;{"id":23, "name": "Kiss János"};[{"name":"körte","unit_price":3000, "quantity":2}, {"name":"szilva","unit_price":4000, "quantity":3}]
+3;receipt;{"id":354, "name": "Nagy Béla"};[{"name":"alma","unit_price":5000, "quantity":5}, {"name":"körte","unit_price":3000, "quantity":2}, {"name":"szilva","unit_price":4000, "quantity":3}]
+4;invoice;{"id":354, "name": "Nagy Béla"};[{"name":"alma","unit_price":5000, "quantity":5}, {"name":"körte","unit_price":3000, "quantity":2}, {"name":"szilva","unit_price":4000, "quantity":3}]
+5;receipt;{"id":354, "name": "Nagy Béla"};[{"name":"dinnye","unit_price":10000, "quantity":3}]
+6;invoice;{"id":1, "name": "Kovács József"};[{"name":"alma","unit_price":5000, "quantity":5}]
+7;invoice;{"id":23, "name": "Kiss János"};[{"name":"körte","unit_price":3000, "quantity":2}, {"name":"szilva","unit_price":4000, "quantity":3}]
+8;receipt;{};[{"name":"licsi","unit_price":7500, "quantity":3}]
+9;proforma;{"id":1, "name": "Kovács József"};[{"name":"dinnye","unit_price":10000, "quantity":3}, {"name":"szilva","unit_price":4000, "quantity":3}]
+10;invoice;{"id":1, "name": "Kovács József"};[{"name":"dinnye","unit_price":10000, "quantity":3}, {"name":"szilva","unit_price":4000, "quantity":3}]
+11;invoice;{"id":354, "name": "Nagy Béla"};[{"name":"körte","unit_price":15000, "quantity":3}]
+12;invoice;{"id":354, "name": "Nagy Béla"};[{"name":"alma","unit_price":5000, "quantity":5}, {"name":"körte","unit_price":15000, "quantity":1}]
